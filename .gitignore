@@ -9,3 +9,4 @@ composer.lock
 coverage/
 .phpunit.result.cache
 /docs/
+/.idea/
