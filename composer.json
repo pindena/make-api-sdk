@@ -1,0 +1,70 @@
+{
+    "version": "1.0.0",
+    "name": "pindena/make-sdk",
+    "description": "A PHP SDK for Make AS' API — subscribers, newsletters, and recurring actions.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "pindena",
+        "make",
+        "sdk",
+        "api",
+        "subscribers",
+        "newsletters"
+    ],
+    "authors": [
+        {
+            "name": "Pindena",
+            "email": "support@pindena.no",
+            "homepage": "https://pindena.no"
+        },
+        {
+            "name": "Nichlas",
+            "email": "nichlas@coretrek.no",
+            "homepage": "https://coretrek.no"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/http": "^9.0|^10.0|^11.0|^12.0|^13.0",
+        "spatie/laravel-package-tools": "^1.11"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^7.0|^8.0|^9.0|^10.0|^11.0",
+        "pestphp/pest": "^2.0|^3.0",
+        "phpunit/phpunit": "^10.0|^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Pindena\\MakeSDK\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Pindena\\MakeSDK\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Pindena\\MakeSDK\\MakeSDKServiceProvider"
+            ],
+            "aliases": {
+                "Make": "Pindena\\MakeSDK\\Facades\\Make"
+            }
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "scripts": {
+        "test": {
+            "command": "./vendor/bin/pest tests"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
