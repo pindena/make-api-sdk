@@ -114,10 +114,10 @@ class MakeClient
      */
     private function send(string $method, string $url, array $query = [], array $data = []): array
     {
+        $urlWithQuery = $query !== [] ? $url.'?'.$this->buildQueryString($query) : $url;
+
         try {
             $request = $this->buildRequest();
-
-            $urlWithQuery = $query !== [] ? $url.'?'.http_build_query($query) : $url;
 
             /** @var Response $response */
             $response = match ($method) {
@@ -139,7 +139,26 @@ class MakeClient
             $body = $e->response->json() ?? [];
             $message = $body['message'] ?? $body['status'] ?? $e->getMessage();
 
-            throw MakeSDKException::fromResponse($statusCode, $message);
+            throw MakeSDKException::fromResponse(
+                statusCode: $statusCode,
+                message: $message,
+                method: $method,
+                url: $urlWithQuery,
+                query: $query,
+                requestBody: $data,
+                responseBody: $body,
+            );
         }
+    }
+
+    /**
+     * Build a query string with bare brackets for array values (e.g. `key[]=1&key[]=2`)
+     * instead of PHP's default indexed style (`key[0]=1&key[1]=2`).
+     *
+     * @param  array<string, mixed>  $query
+     */
+    private function buildQueryString(array $query): string
+    {
+        return preg_replace('/%5B[0-9]+%5D/', '%5B%5D', http_build_query($query)) ?? '';
     }
 }

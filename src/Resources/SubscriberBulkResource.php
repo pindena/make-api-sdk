@@ -28,7 +28,7 @@ class SubscriberBulkResource
     ): array {
         return $this->client->subscribersPost(
             'subscribers/bulkinsert',
-            $subscribers,
+            array_values($subscribers),
             $this->buildQuery($subscriberListIds, $status, $statusMobile, $tag),
         );
     }
@@ -48,7 +48,7 @@ class SubscriberBulkResource
     ): array {
         return $this->client->subscribersPut(
             'subscribers/bulkupdate',
-            $subscribers,
+            array_values($subscribers),
             $this->buildQuery($subscriberListIds, $status, $statusMobile, $tag),
         );
     }
@@ -67,7 +67,7 @@ class SubscriberBulkResource
     ): array {
         return $this->client->subscribersPut(
             'subscribers/bulkupdate_by_external_id',
-            $subscribers,
+            array_values($subscribers),
             $this->buildQuery($subscriberListIds, tag: $tag),
         );
     }
@@ -82,7 +82,7 @@ class SubscriberBulkResource
     {
         return $this->client->subscribersPost(
             'subscribers/bulkremove',
-            $subscribers,
+            array_values($subscribers),
             $this->buildQuery($subscriberListIds),
         );
     }
