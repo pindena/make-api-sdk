@@ -15,7 +15,7 @@ class NewsletterResource
     /**
      * Send a newsletter.
      */
-    public function send(int $id, NewsletterSettings $settings = new NewsletterSettings()): NewsletterStats
+    public function send(int $id, NewsletterSettings $settings = new NewsletterSettings): NewsletterStats
     {
         $response = $this->client->newslettersPost("newsletters/{$id}/send", $settings->toArray());
 

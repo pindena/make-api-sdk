@@ -3,6 +3,7 @@
 namespace Pindena\MakeSDK\Tests;
 
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
+use Pindena\MakeSDK\Facades\Make;
 use Pindena\MakeSDK\MakeSDKServiceProvider;
 
 class TestCase extends OrchestraTestCase
@@ -17,7 +18,7 @@ class TestCase extends OrchestraTestCase
     protected function getPackageAliases($app): array
     {
         return [
-            'Make' => \Pindena\MakeSDK\Facades\Make::class,
+            'Make' => Make::class,
         ];
     }
 

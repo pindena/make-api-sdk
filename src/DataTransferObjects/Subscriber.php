@@ -12,7 +12,7 @@ class Subscriber
     ];
 
     /**
-     * @param array<string, mixed> $customFields Upper-case custom field values, e.g. ['EXTRA1' => 'foo']
+     * @param  array<string, mixed>  $customFields  Upper-case custom field values, e.g. ['EXTRA1' => 'foo']
      */
     public function __construct(
         public readonly ?int $id = null,

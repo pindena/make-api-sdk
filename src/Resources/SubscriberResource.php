@@ -20,11 +20,25 @@ class SubscriberResource
     }
 
     /**
-     * Create a new subscriber.
+     * Create or update a subscriber. Adds them to the given subscriber lists.
+     *
+     * @param  array<int, int>  $subscriberListIds  Required. Lists to add the subscriber to.
+     * @param  string|null  $status  Email status: active|unsubscribed|bounce
+     * @param  string|null  $statusMobile  Mobile status: active|unsubscribed|bounce
+     * @param  string|null  $tag  Tag handling mode: replace|merge (default: replace)
      */
-    public function create(Subscriber $subscriber): Subscriber
-    {
-        $response = $this->client->subscribersPost('subscribers', $subscriber->toArray());
+    public function create(
+        Subscriber $subscriber,
+        array $subscriberListIds,
+        ?string $status = null,
+        ?string $statusMobile = null,
+        ?string $tag = null,
+    ): Subscriber {
+        $response = $this->client->subscribersPost(
+            'subscribers',
+            $subscriber->toArray(),
+            $this->buildQuery($subscriberListIds, $status, $statusMobile, $tag),
+        );
 
         return Subscriber::fromArray($response);
     }
@@ -32,19 +46,34 @@ class SubscriberResource
     /**
      * Get a subscriber by ID.
      */
-    public function find(int $id): Subscriber
+    public function find(int $id, ?string $externalId = null): Subscriber
     {
-        $response = $this->client->subscribersGet("subscribers/{$id}");
+        $response = $this->client->subscribersGet(
+            "subscribers/{$id}",
+            $externalId !== null ? ['external_id' => $externalId] : [],
+        );
 
         return Subscriber::fromArray($response);
     }
 
     /**
      * Update a subscriber by ID.
+     *
+     * @param  array<int, int>  $subscriberListIds  Optional. Lists to update membership for.
      */
-    public function update(int $id, Subscriber $subscriber): Subscriber
-    {
-        $response = $this->client->subscribersPut("subscribers/{$id}", $subscriber->toArray());
+    public function update(
+        int $id,
+        Subscriber $subscriber,
+        array $subscriberListIds = [],
+        ?string $status = null,
+        ?string $statusMobile = null,
+        ?string $tag = null,
+    ): Subscriber {
+        $response = $this->client->subscribersPatch(
+            "subscribers/{$id}",
+            $subscriber->toArray(),
+            $this->buildQuery($subscriberListIds, $status, $statusMobile, $tag),
+        );
 
         return Subscriber::fromArray($response);
     }
@@ -58,11 +87,14 @@ class SubscriberResource
     }
 
     /**
-     * Get subscriber stats (total counts).
+     * Get subscriber stats (total counts). Optionally filter by subscriber email.
      */
-    public function stats(): array
+    public function stats(?string $email = null): array
     {
-        return $this->client->subscribersGet('subscribers/stats');
+        return $this->client->subscribersGet(
+            'subscribers/stats',
+            $email !== null ? ['email' => $email] : [],
+        );
     }
 
     /**
@@ -103,22 +135,44 @@ class SubscriberResource
 
     /**
      * Get subscribers by list ID.
+     *
+     * @param  string|null  $status  Email status filter: active|unsubscribed|bounce (default: active)
+     * @param  string|null  $statusMobile  Mobile status filter: active|unsubscribed|bounce (default: active)
+     * @param  string|null  $updatedAfter  ISO8601 timestamp filter
      */
-    public function byList(int $listId): array
-    {
-        $response = $this->client->subscribersGet('subscribers/by_list', [
+    public function byList(
+        int $listId,
+        ?int $page = null,
+        ?int $perPage = null,
+        ?string $status = null,
+        ?string $statusMobile = null,
+        ?string $updatedAfter = null,
+    ): array {
+        $query = array_filter([
             'list_id' => $listId,
-        ]);
+            'page' => $page,
+            'per_page' => $perPage,
+            'status' => $status,
+            'status_mobile' => $statusMobile,
+            'updated_after' => $updatedAfter,
+        ], fn ($value) => $value !== null);
+
+        $response = $this->client->subscribersGet('subscribers/by_list', $query);
 
         return array_map(fn (array $item) => Subscriber::fromArray($item), $response);
     }
 
     /**
-     * Get subscriber status information.
+     * Get subscriber status information. Optionally filter by date range.
      */
-    public function status(): array
+    public function status(?string $fromDate = null, ?string $toDate = null): array
     {
-        return $this->client->subscribersGet('subscriberstatus');
+        $query = array_filter([
+            'from_date' => $fromDate,
+            'to_date' => $toDate,
+        ], fn ($value) => $value !== null);
+
+        return $this->client->subscribersGet('subscriberstatus', $query);
     }
 
     /**
@@ -155,5 +209,23 @@ class SubscriberResource
         return $this->client->subscribersPost('subscribers/unsubscribe_phone', [
             'phone' => $phone,
         ]);
+    }
+
+    /**
+     * @param  array<int, int>  $subscriberListIds
+     * @return array<string, mixed>
+     */
+    private function buildQuery(
+        array $subscriberListIds = [],
+        ?string $status = null,
+        ?string $statusMobile = null,
+        ?string $tag = null,
+    ): array {
+        return array_filter([
+            'subscriber_list_id' => $subscriberListIds !== [] ? $subscriberListIds : null,
+            'status' => $status,
+            'status_mobile' => $statusMobile,
+            'tag' => $tag,
+        ], fn ($value) => $value !== null);
     }
 }

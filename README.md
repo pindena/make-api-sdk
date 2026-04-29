@@ -78,33 +78,42 @@ Access via `Make::subscribers()`.
 
 | Method | Description | Returns |
 |---|---|---|
-| `create(Subscriber $subscriber)` | Create a new subscriber | `Subscriber` |
-| `find(int $id)` | Get a subscriber by ID | `Subscriber` |
-| `update(int $id, Subscriber $subscriber)` | Update a subscriber | `Subscriber` |
+| `create(Subscriber $subscriber, array $subscriberListIds, ?string $status = null, ?string $statusMobile = null, ?string $tag = null)` | Create or update a subscriber and add them to one or more lists | `Subscriber` |
+| `find(int $id, ?string $externalId = null)` | Get a subscriber by ID | `Subscriber` |
+| `update(int $id, Subscriber $subscriber, array $subscriberListIds = [], ?string $status = null, ?string $statusMobile = null, ?string $tag = null)` | Update a subscriber (uses `PATCH`) | `Subscriber` |
 | `delete(int $id)` | Delete a subscriber | `array` |
 | `findByEmail(string $email)` | Find subscriber by email | `Subscriber` |
 | `findByPhone(string $phone)` | Find subscriber by phone | `Subscriber` |
 | `findByTrackingToken(string $token)` | Find subscriber by tracking token | `Subscriber` |
-| `byList(int $listId)` | Get all subscribers in a list | `Subscriber[]` |
-| `stats()` | Get subscriber stats (total counts) | `array` |
-| `status()` | Get subscriber status information | `array` |
+| `byList(int $listId, ?int $page = null, ?int $perPage = null, ?string $status = null, ?string $statusMobile = null, ?string $updatedAfter = null)` | Get all subscribers in a list (paginated, max 1000 per page) | `Subscriber[]` |
+| `stats(?string $email = null)` | Get subscriber stats (total counts) | `array` |
+| `status(?string $fromDate = null, ?string $toDate = null)` | Get subscriber status information | `array` |
 | `unsubscribeEmail(int $id)` | Unsubscribe email by subscriber ID | `array` |
 | `unsubscribeEmailByAddress(string $email)` | Unsubscribe email by address | `array` |
 | `unsubscribePhone(int $id)` | Unsubscribe phone by subscriber ID | `array` |
 | `unsubscribePhoneByNumber(string $phone)` | Unsubscribe phone by number | `array` |
 | `bulk()` | Access bulk operations | `SubscriberBulkResource` |
 
+> **`subscriberListIds` is required when creating a subscriber.** The Make API expects you to specify which
+> subscriber list(s) the subscriber belongs to via the `subscriber_list_id[]` query parameter. Optional `status`,
+> `statusMobile`, and `tag` parameters control the email/mobile status (`active`, `unsubscribed`, `bounce`) and
+> tag-handling mode (`replace`, `merge`).
+
 ```php
 use Pindena\MakeSDK\DataTransferObjects\Subscriber;
 
-// Create a subscriber
-$subscriber = Make::subscribers()->create(new Subscriber(
-    email: 'john@example.com',
-    firstname: 'John',
-    lastname: 'Doe',
-    tags: ['vip'],
-    customFields: ['EXTRA1' => 'custom value'],
-));
+// Create a subscriber and add them to lists 1 and 2
+$subscriber = Make::subscribers()->create(
+    new Subscriber(
+        email: 'john@example.com',
+        firstname: 'John',
+        lastname: 'Doe',
+        tags: ['vip'],
+        customFields: ['EXTRA1' => 'custom value'],
+    ),
+    subscriberListIds: [1, 2],
+    tag: 'merge',
+);
 
 // Update a subscriber
 Make::subscribers()->update($subscriber->id, new Subscriber(
@@ -114,22 +123,22 @@ Make::subscribers()->update($subscriber->id, new Subscriber(
 // Find by email
 $subscriber = Make::subscribers()->findByEmail('john@example.com');
 
-// Get all subscribers in a list
-$subscribers = Make::subscribers()->byList(1);
+// Get a paginated slice of subscribers in a list
+$subscribers = Make::subscribers()->byList(1, page: 1, perPage: 100);
 ```
 
 ---
 
 ### Subscriber Bulk Operations
 
-Access via `Make::subscribers()->bulk()`.
+Access via `Make::subscribers()->bulk()`. **Maximum 1000 entries per call.**
 
 | Method | Description |
 |---|---|
-| `insert(array $subscribers)` | Bulk insert subscribers |
-| `update(array $subscribers)` | Bulk update subscribers |
-| `updateByExternalId(array $subscribers)` | Bulk update by external ID |
-| `remove(array $subscribers)` | Bulk remove subscribers |
+| `insert(array $subscribers, array $subscriberListIds, ?string $status = null, ?string $statusMobile = null, ?string $tag = null)` | Bulk insert subscribers into list(s) |
+| `update(array $subscribers, array $subscriberListIds, ?string $status = null, ?string $statusMobile = null, ?string $tag = null)` | Bulk update subscribers in list(s) |
+| `updateByExternalId(array $subscribers, array $subscriberListIds = [], ?string $tag = null)` | Bulk update by external ID |
+| `remove(array $subscribers, array $subscriberListIds)` | Bulk remove subscribers from list(s) |
 | `insertTickets(array $tickets)` | Bulk insert tickets by email |
 | `insertTicketsByExternalId(array $tickets)` | Bulk insert tickets by external ID |
 | `insertTicketEvents(array $events)` | Bulk insert ticket events |
@@ -137,15 +146,28 @@ Access via `Make::subscribers()->bulk()`.
 | `insertSubscriptionsByExternalId(array $subscriptions)` | Bulk insert subscriptions by external ID |
 | `insertSubscriptionProducts(array $products)` | Bulk insert subscription products |
 
+> **`$subscriberListIds` is required for `insert()`, `update()`, and `remove()`.** It is sent as a
+> `subscriber_list_id[]` query parameter and tells the Make API which list(s) the operation targets.
+> For `updateByExternalId()` it is optional. Optional `status`, `statusMobile`, and `tag` parameters
+> are also forwarded as query params (see the [API docs](docs/make_api_subscribers_swagger.json) for valid values).
+
 ```php
 $users = [
     ['email' => 'a@example.com', 'firstname' => 'Alice'],
     ['email' => 'b@example.com', 'firstname' => 'Bob'],
 ];
 
-Make::subscribers()->bulk()->insert($users);
-Make::subscribers()->bulk()->update($users);
-Make::subscribers()->bulk()->remove([['email' => 'a@example.com']]);
+// Insert into lists 1 and 2
+Make::subscribers()->bulk()->insert($users, subscriberListIds: [1, 2]);
+
+// Update with custom status and merge tags
+Make::subscribers()->bulk()->update($users, subscriberListIds: [1], tag: 'merge');
+
+// Remove from list 1
+Make::subscribers()->bulk()->remove(
+    [['email' => 'a@example.com']],
+    subscriberListIds: [1],
+);
 ```
 
 ---

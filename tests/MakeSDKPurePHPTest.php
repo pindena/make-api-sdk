@@ -150,7 +150,6 @@ it('can round-trip a NewsletterStats through fromArray and toArray', function ()
     expect($output)->toBe($original);
 });
 
-
 it('captures custom fields from API response into customFields', function () {
     $data = [
         'id' => 1,

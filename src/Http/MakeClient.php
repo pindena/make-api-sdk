@@ -28,12 +28,12 @@ class MakeClient
 
     private function subscribersUrl(string $uri): string
     {
-        return rtrim($this->subscribersApiUrl, '/') . '/' . ltrim($uri, '/');
+        return rtrim($this->subscribersApiUrl, '/').'/'.ltrim($uri, '/');
     }
 
     private function newslettersUrl(string $uri): string
     {
-        return rtrim($this->newslettersApiUrl, '/') . '/' . ltrim($uri, '/');
+        return rtrim($this->newslettersApiUrl, '/').'/'.ltrim($uri, '/');
     }
 
     /**
@@ -49,27 +49,36 @@ class MakeClient
      * @throws MakeSDKException
      * @throws AuthenticationException
      */
-    public function subscribersPost(string $uri, array $data = []): array
+    public function subscribersPost(string $uri, array $data = [], array $query = []): array
     {
-        return $this->send('POST', $this->subscribersUrl($uri), data: $data);
+        return $this->send('POST', $this->subscribersUrl($uri), query: $query, data: $data);
     }
 
     /**
      * @throws MakeSDKException
      * @throws AuthenticationException
      */
-    public function subscribersPut(string $uri, array $data = []): array
+    public function subscribersPut(string $uri, array $data = [], array $query = []): array
     {
-        return $this->send('PUT', $this->subscribersUrl($uri), data: $data);
+        return $this->send('PUT', $this->subscribersUrl($uri), query: $query, data: $data);
     }
 
     /**
      * @throws MakeSDKException
      * @throws AuthenticationException
      */
-    public function subscribersDelete(string $uri, array $data = []): array
+    public function subscribersPatch(string $uri, array $data = [], array $query = []): array
     {
-        return $this->send('DELETE', $this->subscribersUrl($uri), data: $data);
+        return $this->send('PATCH', $this->subscribersUrl($uri), query: $query, data: $data);
+    }
+
+    /**
+     * @throws MakeSDKException
+     * @throws AuthenticationException
+     */
+    public function subscribersDelete(string $uri, array $data = [], array $query = []): array
+    {
+        return $this->send('DELETE', $this->subscribersUrl($uri), query: $query, data: $data);
     }
 
     /**
@@ -85,18 +94,18 @@ class MakeClient
      * @throws MakeSDKException
      * @throws AuthenticationException
      */
-    public function newslettersPost(string $uri, array $data = []): array
+    public function newslettersPost(string $uri, array $data = [], array $query = []): array
     {
-        return $this->send('POST', $this->newslettersUrl($uri), data: $data);
+        return $this->send('POST', $this->newslettersUrl($uri), query: $query, data: $data);
     }
 
     /**
      * @throws MakeSDKException
      * @throws AuthenticationException
      */
-    public function newslettersPut(string $uri, array $data = []): array
+    public function newslettersPut(string $uri, array $data = [], array $query = []): array
     {
-        return $this->send('PUT', $this->newslettersUrl($uri), data: $data);
+        return $this->send('PUT', $this->newslettersUrl($uri), query: $query, data: $data);
     }
 
     /**
@@ -108,13 +117,15 @@ class MakeClient
         try {
             $request = $this->buildRequest();
 
+            $urlWithQuery = $query !== [] ? $url.'?'.http_build_query($query) : $url;
+
             /** @var Response $response */
             $response = match ($method) {
                 'GET' => $request->get($url, $query),
-                'POST' => $request->post($url, $data),
-                'PUT' => $request->put($url, $data),
-                'DELETE' => $request->delete($url, $data),
-                'PATCH' => $request->patch($url, $data),
+                'POST' => $request->post($urlWithQuery, $data),
+                'PUT' => $request->put($urlWithQuery, $data),
+                'DELETE' => $request->delete($urlWithQuery, $data),
+                'PATCH' => $request->patch($urlWithQuery, $data),
             };
 
             return $response->json() ?? [];

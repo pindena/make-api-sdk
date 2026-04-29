@@ -6,6 +6,14 @@ use Pindena\MakeSDK\DataTransferObjects\Subscriber;
 use Pindena\MakeSDK\DataTransferObjects\SubscriberList;
 use Pindena\MakeSDK\Facades\Make;
 use Pindena\MakeSDK\MakeSDK;
+use Pindena\MakeSDK\Resources\CustomFieldResource;
+use Pindena\MakeSDK\Resources\EventResource;
+use Pindena\MakeSDK\Resources\NewsletterResource;
+use Pindena\MakeSDK\Resources\RecurringActionResource;
+use Pindena\MakeSDK\Resources\SubscriberBulkResource;
+use Pindena\MakeSDK\Resources\SubscriberListResource;
+use Pindena\MakeSDK\Resources\SubscriberResource;
+use Pindena\MakeSDK\Resources\TagResource;
 
 it('can resolve MakeSDK from the container', function () {
     $sdk = app(MakeSDK::class);
@@ -20,14 +28,14 @@ it('can resolve MakeSDK via the facade', function () {
 it('exposes all resource methods', function () {
     $sdk = app(MakeSDK::class);
 
-    expect($sdk->subscribers())->toBeInstanceOf(\Pindena\MakeSDK\Resources\SubscriberResource::class)
-        ->and($sdk->subscribers()->bulk())->toBeInstanceOf(\Pindena\MakeSDK\Resources\SubscriberBulkResource::class)
-        ->and($sdk->subscriberlists())->toBeInstanceOf(\Pindena\MakeSDK\Resources\SubscriberListResource::class)
-        ->and($sdk->customFields())->toBeInstanceOf(\Pindena\MakeSDK\Resources\CustomFieldResource::class)
-        ->and($sdk->tags())->toBeInstanceOf(\Pindena\MakeSDK\Resources\TagResource::class)
-        ->and($sdk->events())->toBeInstanceOf(\Pindena\MakeSDK\Resources\EventResource::class)
-        ->and($sdk->newsletters())->toBeInstanceOf(\Pindena\MakeSDK\Resources\NewsletterResource::class)
-        ->and($sdk->recurringActions())->toBeInstanceOf(\Pindena\MakeSDK\Resources\RecurringActionResource::class);
+    expect($sdk->subscribers())->toBeInstanceOf(SubscriberResource::class)
+        ->and($sdk->subscribers()->bulk())->toBeInstanceOf(SubscriberBulkResource::class)
+        ->and($sdk->subscriberlists())->toBeInstanceOf(SubscriberListResource::class)
+        ->and($sdk->customFields())->toBeInstanceOf(CustomFieldResource::class)
+        ->and($sdk->tags())->toBeInstanceOf(TagResource::class)
+        ->and($sdk->events())->toBeInstanceOf(EventResource::class)
+        ->and($sdk->newsletters())->toBeInstanceOf(NewsletterResource::class)
+        ->and($sdk->recurringActions())->toBeInstanceOf(RecurringActionResource::class);
 });
 
 it('can create a Subscriber DTO from array', function () {

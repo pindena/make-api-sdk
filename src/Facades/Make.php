@@ -2,8 +2,8 @@
 
 namespace Pindena\MakeSDK\Facades;
 
-use Pindena\MakeSDK\MakeSDK;
 use Illuminate\Support\Facades\Facade;
+use Pindena\MakeSDK\MakeSDK;
 
 /**
  * @method static \Pindena\MakeSDK\Resources\SubscriberResource subscribers()
@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Pindena\MakeSDK\Resources\NewsletterResource newsletters()
  * @method static \Pindena\MakeSDK\Resources\RecurringActionResource recurringActions()
  *
- * @see \Pindena\MakeSDK\MakeSDK
+ * @see MakeSDK
  */
 class Make extends Facade
 {

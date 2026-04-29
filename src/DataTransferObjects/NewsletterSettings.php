@@ -5,10 +5,10 @@ namespace Pindena\MakeSDK\DataTransferObjects;
 class NewsletterSettings
 {
     /**
-     * @param int|null    $segmentId   Segment ID to send to
-     * @param int[]|null  $listIds     List IDs to send to
-     * @param int|null    $senderId    Sender ID to use
-     * @param string|null $scheduledAt Scheduled send time (date-time format)
+     * @param  int|null  $segmentId  Segment ID to send to
+     * @param  int[]|null  $listIds  List IDs to send to
+     * @param  int|null  $senderId  Sender ID to use
+     * @param  string|null  $scheduledAt  Scheduled send time (date-time format)
      */
     public function __construct(
         public readonly ?int $segmentId = null,
