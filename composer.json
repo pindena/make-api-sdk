@@ -1,5 +1,5 @@
 {
-    "version": "1.0.1",
+    "version": "1.0.2",
     "name": "pindena/make-sdk",
     "description": "A PHP SDK for Make AS' API — subscribers, newsletters, and recurring actions.",
     "type": "library",
